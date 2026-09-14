@@ -92,7 +92,17 @@ export const createVideoSlice: StateCreator<ArtifactStore, [], [], VideoSlice> =
           connectSSE,
           newRunId,
           (event) => {
-            set({ artifacts: patchArtifact(get().artifacts, id, { statusMessage: getSSEStatusMessage("video", event.step, event.status, event.message) }) });
+            set({
+  artifacts: patchArtifact(get().artifacts, id, {
+    currentStep: event.step,
+    statusMessage: getSSEStatusMessage(
+      "video",
+      event.step,
+      event.status,
+      event.message
+    ),
+  }),
+});
 
             const progress = stepToProgress(event.step, event.status);
             if (progress > 0) get().updateProgress(id, Math.min(progress, 95));
@@ -146,6 +156,7 @@ export const createVideoSlice: StateCreator<ArtifactStore, [], [], VideoSlice> =
       downloadUrl: undefined,
       audioSlides: undefined,
       statusMessage: undefined,
+      currentStep: undefined,
       errorMessage: undefined,
       needsUserAction: undefined,
       replacesArtifactId: undefined,
@@ -212,11 +223,16 @@ export const createVideoSlice: StateCreator<ArtifactStore, [], [], VideoSlice> =
         (event) => {
           set({
             artifacts: patchArtifact(get().artifacts, id, {
-              progress: Math.min(stepToProgress(event.step, event.status), 95),
-              statusMessage: getSSEStatusMessage("video", event.step, event.status, event.message),
-            }),
-          });
-
+  progress: Math.min(stepToProgress(event.step, event.status), 95),
+  currentStep: event.step,
+  statusMessage: getSSEStatusMessage(
+    "video",
+    event.step,
+    event.status,
+    event.message
+  ),
+}),
+          
           if (event.step === "script_gen" && event.status === "completed" && !confirmedAlready) uploadAndConfirm();
 
           if (event.step === "pipeline" && event.status === "completed") {
