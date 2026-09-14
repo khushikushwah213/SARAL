@@ -57,6 +57,7 @@ export interface Artifact {
   pdfBlobUrl?: string;
   errorMessage?: string;
   statusMessage?: string;
+  currentStep?: string;
   imageAssignments: Record<string, number>;
   audioSlides?: AudioSlidePresigned["slides"];
   podcastDurationSeconds?: number;
